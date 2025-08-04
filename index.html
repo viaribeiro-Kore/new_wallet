@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethereum Wallet Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #856404;
+        }
+
+        .warning h3 {
+            margin-bottom: 10px;
+            color: #d68910;
+        }
+
+        .warning ul {
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .warning li {
+            margin: 5px 0;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .wallet-info {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .wallet-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .wallet-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .seed-phrase {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            word-spacing: 10px;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .address-display {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: #333;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 10px 0;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        .copy-btn.copied {
+            background: #17a2b8;
+        }
+
+        .loading {
+            display: none;
+            color: #667eea;
+            font-style: italic;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .seed-phrase {
+                font-size: 1rem;
+                word-spacing: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Ethereum Wallet Generator</h1>
+            <p>Generate a secure Ethereum wallet with a 12-word seed phrase</p>
+        </div>
+
+        <div class="warning">
+            <h3>⚠️ Security Warning</h3>
+            <ul>
+                <li><strong>Never share your seed phrase</strong> with anyone</li>
+                <li><strong>Store it securely offline</strong> - write it down on paper</li>
+                <li><strong>This website runs locally</strong> - your keys never leave your browser</li>
+                <li><strong>Clear your browser history</strong> after use for extra security</li>
+                <li><strong>Use only on trusted devices</strong> with updated antivirus</li>
+            </ul>
+        </div>
+
+        <button class="generate-btn" onclick="generateWallet()">
+            Generate New Wallet
+        </button>
+
+        <div class="loading" id="loading">
+            Generating secure wallet...
+        </div>
+
+        <div class="wallet-info" id="walletInfo">
+            <div class="wallet-section">
+                <h3>🔑 Seed Phrase (Mnemonic)</h3>
+                <p style="color: #666; margin-bottom: 10px; font-size: 0.9rem;">
+                    Write this down and store it safely. This is the ONLY way to recover your wallet.
+                </p>
+                <div class="seed-phrase" id="seedPhrase"></div>
+                <button class="copy-btn" onclick="copyToClipboard('seedPhrase')">
+                    Copy Seed Phrase
+                </button>
+            </div>
+
+            <div class="wallet-section">
+                <h3>📱 Wallet Address</h3>
+                <p style="color: #666; margin-bottom: 10px; font-size: 0.9rem;">
+                    This is your public Ethereum address for receiving funds.
+                </p>
+                <div class="address-display" id="walletAddress"></div>
+                <button class="copy-btn" onclick="copyToClipboard('walletAddress')">
+                    Copy Address
+                </button>
+            </div>
+
+            <div class="wallet-section">
+                <h3>🔐 Private Key</h3>
+                <p style="color: #666; margin-bottom: 10px; font-size: 0.9rem;">
+                    Keep this extremely secure. Never share this with anyone.
+                </p>
+                <div class="address-display" id="privateKey"></div>
+                <button class="copy-btn" onclick="copyToClipboard('privateKey')">
+                    Copy Private Key
+                </button>
+            </div>
+        </div>
+
+        <div id="errorMessage"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script>
+        async function generateWallet() {
+            const button = document.querySelector('.generate-btn');
+            const loading = document.getElementById('loading');
+            const walletInfo = document.getElementById('walletInfo');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Reset UI
+            button.disabled = true;
+            loading.style.display = 'block';
+            walletInfo.style.display = 'none';
+            errorMessage.innerHTML = '';
+
+            try {
+                // Generate random wallet
+                const wallet = ethers.Wallet.createRandom();
+                
+                // Get wallet details
+                const seedPhrase = wallet.mnemonic.phrase;
+                const address = wallet.address;
+                const privateKey = wallet.privateKey;
+
+                // Display wallet info
+                document.getElementById('seedPhrase').textContent = seedPhrase;
+                document.getElementById('walletAddress').textContent = address;
+                document.getElementById('privateKey').textContent = privateKey;
+
+                // Show wallet info
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    walletInfo.style.display = 'block';
+                    button.disabled = false;
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error generating wallet:', error);
+                loading.style.display = 'none';
+                button.disabled = false;
+                errorMessage.innerHTML = `
+                    <div class="error">
+                        <strong>Error:</strong> Failed to generate wallet. Please try again or check your internet connection.
+                    </div>
+                `;
+            }
+        }
+
+        async function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            const button = event.target;
+
+            try {
+                await navigator.clipboard.writeText(text);
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            } catch (error) {
+                console.error('Failed to copy to clipboard:', error);
+                // Fallback for older browsers
+                element.select();
+                document.execCommand('copy');
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }
+        }
+
+        // Security reminder on page load
+        window.addEventListener('load', () => {
+            console.log('🔐 Ethereum Wallet Generator loaded successfully');
+            console.log('⚠️ Remember: Never share your seed phrase or private key with anyone!');
+        });
+
+        // Clear sensitive data on page unload
+        window.addEventListener('beforeunload', () => {
+            // Clear displayed wallet data
+            const sensitiveElements = ['seedPhrase', 'privateKey', 'walletAddress'];
+            sensitiveElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = '';
+            });
+        });
+    </script>
+</body>
+</html>
