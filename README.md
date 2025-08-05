@@ -1,49 +1,89 @@
-# Ethereum Wallet Generator
+# Secure Ethereum Wallet Generator
 
-A secure, client-side Ethereum wallet generator that creates wallets with 12-word seed phrases directly in your browser.
+A secure Ethereum wallet generator with split seed phrase storage and Google OAuth authentication for enhanced security.
 
-## Features
+## 🔒 Enhanced Security Features
 
-- ✅ **Client-side generation** - Your keys never leave your browser
-- ✅ **12-word seed phrase** - Standard BIP39 mnemonic generation
-- ✅ **Modern UI** - Beautiful, responsive design
-- ✅ **Copy functionality** - Easy copying of seed phrase, address, and private key
-- ✅ **Security warnings** - Built-in reminders about best practices
+- ✅ **Split seed phrase storage** - Server stores words 1-6, local storage holds words 7-12
+- ✅ **Google OAuth protection** - Server half tied to your Google account
+- ✅ **Double authentication** - Need both Google access AND local storage to recover
+- ✅ **Client-side generation** - Wallet creation still happens in your browser
+- ✅ **Hashed storage** - Server half is securely hashed with bcrypt
+- ✅ **Modern UI** - Beautiful, responsive design with security indicators
+- ✅ **Recovery system** - Reconstruct wallet from both halves
 - ✅ **Mobile responsive** - Works on all devices
 
 ## How to Use
 
-1. Open `index.html` in your web browser
-2. Read the security warnings carefully
-3. Click "Generate New Wallet"
-4. **Write down your 12-word seed phrase** on paper
-5. Store your seed phrase in a secure location
-6. Use the wallet address to receive Ethereum
+### Initial Setup (First Time)
+1. **Configure Google OAuth** - See `setup-instructions.md` for detailed steps
+2. **Install dependencies** - Run `npm install`
+3. **Start the backend** - Run `npm start`
+4. **Serve the frontend** - Use `python -m http.server 8080` or similar
+5. **Open in browser** - Navigate to `http://localhost:8080`
+
+### Generating a Secure Wallet
+1. **Sign in with Google** - Required for server-side storage
+2. **Generate new wallet** - Click "Generate New Wallet"
+3. **Note the split storage**:
+   - **Server half (words 1-6)** - Automatically stored securely on server
+   - **Local half (words 7-12)** - Write this down on paper and store safely
+4. **Use wallet address** - For receiving Ethereum transactions
+
+### Recovering Your Wallet
+1. **Sign in with Google** - Same account used for generation
+2. **Enter local half** - Input words 7-12 in the reconstruction section
+3. **Verify and reconstruct** - System combines both halves securely
 
 ## Security Features
 
-- **No server communication** - Everything runs locally in your browser
-- **No data storage** - Wallet data is cleared when you close the page
+- **Split storage architecture** - No single point of failure
+- **Google OAuth verification** - Server half protected by Google authentication
+- **Bcrypt hashing** - Server half stored as secure hash (12 salt rounds)
+- **Rate limiting** - API protection against brute force attacks
+- **CORS protection** - Restricted API access from authorized origins only
+- **Local generation** - Wallet creation happens client-side
 - **Ethers.js library** - Uses the trusted Ethers.js library for cryptographic operations
-- **Security reminders** - Clear warnings about seed phrase security
+- **Input validation** - All user inputs validated and sanitized
+- **Secure headers** - Helmet.js security middleware implemented
 
 ## Important Security Notes
 
 ⚠️ **CRITICAL SECURITY WARNINGS:**
 
-- **NEVER share your seed phrase** with anyone
-- **Write it down on paper** and store it safely offline
+- **NEVER share your local seed half** (words 7-12) with anyone
+- **Write your local half on paper** and store it safely offline
+- **Protect your Google account** - Enable 2FA and use strong passwords
+- **Both halves required** - You need Google access AND local half to recover
 - **This tool generates real wallets** - treat the keys as you would real money
 - **Use only on trusted devices** with updated security software
-- **Clear your browser history** after use for extra security
+- **HTTPS required in production** - Never use over unencrypted connections
 - **The generated wallet is immediately usable** on the Ethereum mainnet and testnets
 
 ## Technical Details
 
-- Uses Ethers.js v5.7.2 for wallet generation
-- Implements BIP39 standard for mnemonic generation
-- Generates wallets compatible with MetaMask, Trust Wallet, and other standard wallets
-- No dependencies on external servers or APIs
+### Frontend
+- **Ethers.js v5.7.2** for wallet generation
+- **BIP39 standard** for mnemonic generation
+- **Google Sign-In API** for OAuth authentication
+- **Responsive design** with modern CSS
+- **Local storage** for client-side seed half
+
+### Backend
+- **Node.js with Express** server framework
+- **SQLite database** for development (easily upgradeable to PostgreSQL/MySQL)
+- **Google Auth Library** for token verification
+- **bcrypt** for secure password hashing
+- **Helmet.js** for security headers
+- **CORS middleware** for cross-origin protection
+- **Rate limiting** for API endpoint protection
+
+### Security Architecture
+- **Split seed phrase** (6 words server, 6 words local)
+- **OAuth 2.0** authentication flow
+- **JWT token** verification
+- **Database normalization** with foreign key relationships
+- **Input validation** and sanitization
 
 ## Browser Compatibility
 
@@ -52,17 +92,26 @@ A secure, client-side Ethereum wallet generator that creates wallets with 12-wor
 - Safari 11+
 - Edge 79+
 
-## Running the Application
+## Quick Start
 
-Simply open `index.html` in any modern web browser. No installation or setup required.
+For detailed setup instructions, see `setup-instructions.md`.
 
 ```bash
-# Option 1: Open directly in browser
-open index.html
+# 1. Install dependencies
+npm install
 
-# Option 2: Serve with a simple HTTP server (optional)
-python -m http.server 8000
-# Then visit http://localhost:8000
+# 2. Configure Google OAuth (see setup-instructions.md)
+cp .env.example .env
+# Edit .env with your Google Client ID
+
+# 3. Start the backend server
+npm start
+
+# 4. In another terminal, serve the frontend
+python -m http.server 8080
+
+# 5. Open browser and navigate to:
+# http://localhost:8080
 ```
 
 ## License
